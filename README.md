@@ -6,4 +6,4 @@ Run it up via ```sbt run```
 
 If you select a row on the table, it will show on stdout
 
-If you click the fetch qoutes button it will call the Json endpoint and pull it back to the table
+If you click the fetch quotes button it will call the Json endpoint and pull it back to the table
