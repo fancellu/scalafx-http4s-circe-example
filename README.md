@@ -11,3 +11,9 @@ If you click the fetch quotes button it will call the Json endpoint and pull it 
 ## Screenshot
 
 ![Screenshot](/scalafx_screenshot.png)
+
+## Note
+
+You'll need a JDK that supports JavaFX, on include it yourself https://github.com/scalafx/scalafx#scalafx-dependencies
+
+So if it complains, you know what to do
