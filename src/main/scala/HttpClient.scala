@@ -19,14 +19,12 @@ case class Quote(id: String, en: String, author: String, rating: Option[Double])
 
 object HttpClient{
 
-  val blockingPool = Executors.newFixedThreadPool(3)
+  val blockingPool = Executors.newFixedThreadPool(2)
   private val blocker = Blocker.liftExecutorService(blockingPool)
   private implicit val cs: ContextShift[IO] = IO.contextShift(global)
 
   private val httpClient: Client[IO] = JavaNetClientBuilder[IO](blocker).create
 
-  def getQoutes: List[Quote] =
-    httpClient.expect[List[Quote]]("https://programming-quotes-api.herokuapp.com/quotes/lang/en").unsafeRunSync()
-
-
+  def getQuotesIO: IO[List[Quote]] =
+    httpClient.expect[List[Quote]]("https://programming-quotes-api.herokuapp.com/quotes/lang/en")
 }

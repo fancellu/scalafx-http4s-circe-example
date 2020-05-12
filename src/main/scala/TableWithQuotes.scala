@@ -10,6 +10,8 @@ import scalafx.scene.layout.BorderPane
 
 object TableWithQuotes extends JFXApp {
 
+  HttpClient // init
+
   val quotes = ObservableBuffer[Quote](
     Quote("id1", "blahblah", "me", Some(10.0)),
     Quote("id2", "more blahblah", "you", Some(1.0)),
@@ -56,8 +58,29 @@ object TableWithQuotes extends JFXApp {
     text="Fetch Quotes"
     onAction={ _=>
       println("Fetching via http4s")
+      val oldCursor=cursor()
+      this.cursor = Cursor.Wait
+      HttpClient.getQuotesIO.map{ quoteList=>
+        Platform.runLater {
+          println("adding to GUI")
+          quotes ++= quoteList
+          this.cursor=oldCursor
+        }
+      }.unsafeRunAsyncAndForget()
+
+    }
+  }
+
+  val clearQuotes=new Button{
+    cursor=Cursor.Hand
+    style = "-fx-font-size: 24pt"
+
+    delegate.setMaxSize(Double.MaxValue,Double.MaxValue)
+
+    text="Clear Quotes"
+    onAction={ _=>
       Platform.runLater {
-        quotes ++= HttpClient.getQoutes
+        quotes.clear()
       }
     }
   }
@@ -66,9 +89,12 @@ object TableWithQuotes extends JFXApp {
     title = "TableWithQuotes"
     scene = new Scene {
       stylesheets=List("style.css")
-      root = new BorderPane(tableView, fetchQuotes, null, null, null){
-        styleClass=List("bg-1")
-      }
+      root = new BorderPane(tableView, fetchQuotes, null, clearQuotes, null)
     }
+  }
+
+  override def stopApp(): Unit = {
+    println("exiting")
+    HttpClient.blockingPool.shutdown()
   }
 }
