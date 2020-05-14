@@ -1,12 +1,14 @@
 
+import org.scalafx.extras.BusyWorker
+import org.scalafx.extras.BusyWorker.SimpleTask
 import scalafx.Includes._
 import scalafx.application.{JFXApp, Platform}
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.collections.ObservableBuffer
 import scalafx.scene.{Cursor, Scene}
 import scalafx.scene.control.TableColumn._
-import scalafx.scene.control.{Button, TableColumn, TableView}
-import scalafx.scene.layout.BorderPane
+import scalafx.scene.control.{Button, Label, TableColumn, TableView}
+import scalafx.scene.layout.{BorderPane, Priority, VBox}
 
 object TableWithQuotes extends JFXApp {
 
@@ -49,25 +51,32 @@ object TableWithQuotes extends JFXApp {
     )
   }
 
-  val fetchQuotes=new Button{
+  val fetchQuotes: Button =new Button{
     cursor=Cursor.Hand
     style = "-fx-font-size: 24pt"
 
     delegate.setMaxSize(Double.MaxValue,Double.MaxValue)
 
     text="Fetch Quotes"
-    onAction={ _=>
-      println("Fetching via http4s")
-      val oldCursor=cursor()
-      this.cursor = Cursor.Wait
-      HttpClient.getQuotesIO.map{ quoteList=>
-        Platform.runLater {
-          println("adding to GUI")
-          quotes ++= quoteList
-          this.cursor=oldCursor
-        }
-      }.unsafeRunAsyncAndForget()
+    onAction= { _ =>
+      new BusyWorker("Fetching via http4s", fetchQuotes){
+        status.text <== progressMessage
+      }.doTask(
+        new SimpleTask[Unit] {
+           def call(): Unit = {
 
+            message() = "Fetching quotes"
+
+            HttpClient.getQuotesIO.map { quoteList =>
+                          println("adding to GUI")
+                          quotes ++= quoteList
+                        }.unsafeRunSync()
+             message() =s""
+          }
+        }
+      )
+
+      println("exiting click handler")
     }
   }
 
@@ -85,11 +94,18 @@ object TableWithQuotes extends JFXApp {
     }
   }
 
+  private val status = new Label("") {
+    hgrow = Priority.Always
+    maxWidth = Double.MaxValue
+  }
+
    stage = new PrimaryStage {
     title = "TableWithQuotes"
     scene = new Scene {
       stylesheets=List("style.css")
-      root = new BorderPane(tableView, fetchQuotes, null, clearQuotes, null)
+      root = new BorderPane(tableView, fetchQuotes, null, new VBox{
+        children ++= Seq(clearQuotes, status)
+      }, null)
     }
   }
 
