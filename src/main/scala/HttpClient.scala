@@ -26,5 +26,5 @@ object HttpClient{
   private val httpClient: Client[IO] = JavaNetClientBuilder[IO](blocker).create
 
   def getQuotesIO: IO[List[Quote]] =
-    httpClient.expect[List[Quote]]("https://programming-quotes-api.herokuapp.com/quotes/lang/en")
+    httpClient.expect[List[Quote]]("https://programming-quotes-api.herokuapp.com/Quotes")
 }
