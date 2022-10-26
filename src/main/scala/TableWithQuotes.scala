@@ -1,4 +1,5 @@
 
+import cats.effect.unsafe.implicits.global
 import org.scalafx.extras.BusyWorker
 import org.scalafx.extras.BusyWorker.SimpleTask
 import scalafx.Includes._
@@ -71,7 +72,7 @@ object TableWithQuotes extends JFXApp {
                           println("adding to GUI")
                           quotes ++= quoteList
                         }.unsafeRunSync()
-             message() =s""
+             message() =""
           }
         }
       )
@@ -111,6 +112,6 @@ object TableWithQuotes extends JFXApp {
 
   override def stopApp(): Unit = {
     println("exiting")
-    HttpClient.blockingPool.shutdown()
+//    HttpClient.blockingPool.shutdown()
   }
 }
