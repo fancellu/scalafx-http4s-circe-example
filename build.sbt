@@ -12,7 +12,6 @@ val http4sVersion = "0.23.16"
 
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-dsl" % http4sVersion,
-  "org.http4s" %% "http4s-blaze-server" % "0.23.12",
   "org.http4s" %% "http4s-blaze-client" % "0.23.12",
   "org.http4s" %% "http4s-circe" % http4sVersion,
   "io.circe" %% "circe-generic" % "0.14.3",
